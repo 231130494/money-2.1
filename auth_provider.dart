@@ -12,8 +12,7 @@ class AppAuthProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _user != null;
 
-  Stream<User?> get authStateChanges => _authService.user; // Getter untuk Stream auth state changes
-
+  Stream<User?> get authStateChanges => _authService.user;
   AppAuthProvider() {
     _authService.user.listen((user) {
       _user = user;
@@ -58,8 +57,8 @@ class AppAuthProvider with ChangeNotifier {
     notifyListeners();
     return errorMessage;
   }
-
+  
   Future<void> signOut() async {
     await _authService.signOut();
   }
-}
+}`
