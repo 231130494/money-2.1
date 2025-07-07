@@ -25,12 +25,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       
-      // Debugging output
       debugPrint('Email: $_email');
       debugPrint('Password: $_password (length: ${_password.length})');
       debugPrint('Confirm Password: $_confirmPassword (length: ${_confirmPassword.length})');
       
-      // Additional check after save
       if (_password != _confirmPassword) {
         setState(() {
           _passwordsMatch = false;
