@@ -1,7 +1,7 @@
 // lib/view/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:money/auth/auth_provider.dart'; // PASTI KAN JALUR INI DAN AppAuthProvider
+import 'package:money/auth/auth_provider.dart'; 
 import 'package:money/view/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submitLogin() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final authProvider = Provider.of<AppAuthProvider>(context, listen: false); // Gunakan AppAuthProvider
+      final authProvider = Provider.of<AppAuthProvider>(context, listen: false);
       
       String? errorMessage = await authProvider.signIn(_email, _password);
 
@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AppAuthProvider>(context); // Gunakan AppAuthProvider
+    final authProvider = Provider.of<AppAuthProvider>(context); 
 
     return Scaffold(
       appBar: AppBar(
