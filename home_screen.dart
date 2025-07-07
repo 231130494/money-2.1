@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0; // Indeks untuk BottomNavigationBar
+  int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
     DashboardScreen(),
@@ -70,4 +70,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
+}  
