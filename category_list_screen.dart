@@ -1,3 +1,4 @@
+//lib/view/category_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:money/model/category.dart';
@@ -151,7 +152,7 @@ class CategoryListScreen extends StatelessWidget {
   }
 
   void _confirmDeleteCategory(
-      BuildContext context, String categoryId, CategoryProvider categoryProvider) { // Parameter harus String
+      BuildContext context, String categoryId, CategoryProvider categoryProvider) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
