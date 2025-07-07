@@ -52,7 +52,7 @@ class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
       }
 
       final newCategory = Category(
-        id: widget.category?.id, // ID sekarang String
+        id: widget.category?.id, 
         name: _name,
         type: _type,
         color: _pickedColor.value,
