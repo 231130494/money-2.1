@@ -1,3 +1,4 @@
+//lib/view/transaction_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:money/controller/transaction_provider.dart';
@@ -77,7 +78,7 @@ class TransactionListScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, String transactionId) { // Parameter harus String
+  void _showDeleteConfirmationDialog(BuildContext context, String transactionId) { 
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
