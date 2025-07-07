@@ -41,7 +41,7 @@ class TransactionProvider with ChangeNotifier {
       return;
     }
     final currentUserUid = _authProvider.user!.uid;
-    debugPrint('fetchTransactions: Current User UID from AuthProvider: $currentUserUid'); // <-- PENTING: Tambahkan ini
+    debugPrint('fetchTransactions: Current User UID from AuthProvider: $currentUserUid');
 
     try {
       _transactions = (await _repository.getTransactions(currentUserUid)).cast<Transaction>();
@@ -67,7 +67,7 @@ class TransactionProvider with ChangeNotifier {
     await fetchTransactions();
   }
 
-  Future<void> deleteTransaction(String id) async { // Parameter harus String
+  Future<void> deleteTransaction(String id) async {
     if (_authProvider.user == null) return;
     await _repository.deleteTransaction(id);
     await fetchTransactions();
