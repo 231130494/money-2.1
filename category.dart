@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class Category {
-  String? id; // HARUS String?
+  String? id; 
   String name;
   String type;
   int? color;
@@ -22,7 +22,7 @@ class Category {
 
   factory Category.fromMap(Map<String, dynamic> map) {
     return Category(
-      id: map['id'] as String?, // HARUS di-cast sebagai String?
+      id: map['id'] as String?, 
       name: map['name'] as String,
       type: map['type'] as String,
       color: map['color'] as int?,
