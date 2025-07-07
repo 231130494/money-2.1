@@ -1,193 +1,198 @@
 // lib/view/manage_category_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
+import 'package:money/model/category.dart';
+import 'package:money/controller/category_provider.dart';
 import 'package:money/auth/auth_provider.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class ManageCategoryScreen extends StatefulWidget {
+  final Category? category;
+
+  const ManageCategoryScreen({super.key, this.category});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<ManageCategoryScreen> createState() => _ManageCategoryScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _ManageCategoryScreenState extends State<ManageCategoryScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  
-  String _email = '';
-  String _password = '';
-  String _confirmPassword = '';
-  bool _passwordsMatch = true;
+  late String _name;
+  late String _type;
+  late Color _pickedColor;
+  String? _currentUserId;
 
-  void _submitRegister() async {
+  @override
+  void initState() {
+    super.initState();
+
+    final authProvider = Provider.of<AppAuthProvider>(context, listen: false);
+    _currentUserId = authProvider.user?.uid;
+
+    if (widget.category != null) {
+      _name = widget.category!.name;
+      _type = widget.category!.type;
+      _pickedColor = widget.category!.flutterColor;
+    } else {
+      _name = '';
+      _type = 'expense';
+      _pickedColor = Colors.blue;
+    }
+  }
+
+  void _saveCategory() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
-      debugPrint('Email: $_email');
-      debugPrint('Password: $_password (length: ${_password.length})');
-      debugPrint('Confirm Password: $_confirmPassword (length: ${_confirmPassword.length})');
-      
-      if (_password != _confirmPassword) {
-        setState(() {
-          _passwordsMatch = false;
-        });
+
+      if (_currentUserId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password dan konfirmasi password tidak cocok')),
+          const SnackBar(content: Text('Error: User ID tidak ditemukan.')),
         );
         return;
       }
 
-      final authProvider = Provider.of<AppAuthProvider>(context, listen: false);
-      String? errorMessage = await authProvider.register(_email, _password);
+      final newCategory = Category(
+        id: widget.category?.id, 
+        name: _name,
+        type: _type,
+        color: _pickedColor.value,
+        userId: _currentUserId,
+      );
 
-      if (errorMessage == null) {
+      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+
+      if (widget.category == null) {
+        categoryProvider.addCategory(newCategory);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pendaftaran berhasil! Silakan login.')),
+          const SnackBar(content: Text('Kategori berhasil ditambahkan')),
         );
-        if (!mounted) return;
-        Navigator.pop(context);
       } else {
-        if (!mounted) return;
+        categoryProvider.updateCategory(newCategory);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
+          const SnackBar(content: Text('Kategori berhasil diperbarui')),
         );
       }
+      Navigator.pop(context);
     }
   }
 
-  void _checkPasswordMatch() {
-    if (_passwordController.text.isNotEmpty && 
-        _confirmPasswordController.text.isNotEmpty) {
-      setState(() {
-        _passwordsMatch = _passwordController.text == _confirmPasswordController.text;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
+  void _showColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pilih Warna Kategori'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: _pickedColor,
+              onColorChanged: (color) {
+                setState(() {
+                  _pickedColor = color;
+                });
+              },
+              enableAlpha: false,
+              displayThumbColor: true,
+              paletteType: PaletteType.hsv,
+              labelTypes: const [],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Selesai'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AppAuthProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Akun Baru'),
-        centerTitle: true,
+        title: Text(widget.category == null ? 'Tambah Kategori' : 'Edit Kategori'),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                    hintText: 'contoh@email.com',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Masukkan email Anda';
-                    }
-                    if (!value.contains('@') || !value.contains('.')) {
-                      return 'Masukkan email yang valid';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _email = value!.trim();
-                  },
-                  onChanged: (_) => setState(() {}),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                initialValue: _name,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Kategori',
+                  border: OutlineInputBorder(),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                    hintText: 'Minimal 6 karakter',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Masukkan password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password minimal 6 karakter';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _password = value!.trim();
-                  },
-                  onChanged: (_) {
-                    _checkPasswordMatch();
-                    setState(() {});
-                  },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Masukkan nama kategori';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _name = value!;
+                },
+              ),
+              const SizedBox(height: 16),
+              InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Jenis Kategori',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Konfirmasi Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.lock),
-                    hintText: 'Ketik ulang password',
-                    errorText: _passwordsMatch ? null : 'Password tidak cocok',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Konfirmasi password Anda';
-                    }
-                    if (value.length < 6) {
-                      return 'Password minimal 6 karakter';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _confirmPassword = value!.trim();
-                  },
-                  onChanged: (_) {
-                    _checkPasswordMatch();
-                    setState(() {});
-                  },
-                ),
-                const SizedBox(height: 24),
-                authProvider.isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: _submitRegister,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Daftar',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _type,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _type = newValue!;
+                      });
+                    },
+                    items: const <DropdownMenuItem<String>>[
+                      DropdownMenuItem<String>(
+                        value: 'expense',
+                        child: Text('Pengeluaran'),
                       ),
-              ],
-            ),
+                      DropdownMenuItem<String>(
+                        value: 'income',
+                        child: Text('Pemasukan'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                title: const Text('Pilih Warna Kategori'),
+                trailing: CircleAvatar(
+                  backgroundColor: _pickedColor,
+                  radius: 15,
+                ),
+                onTap: _showColorPicker,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: Colors.grey.shade400),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _saveCategory,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  widget.category == null ? 'Tambah Kategori' : 'Perbarui Kategori',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
           ),
         ),
       ),
