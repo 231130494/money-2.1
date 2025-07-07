@@ -57,7 +57,7 @@ class CategoryProvider with ChangeNotifier {
     await fetchCategories();
   }
 
-  Future<void> deleteCategory(String id) async { // Parameter harus String
+  Future<void> deleteCategory(String id) async { 
     if (_authProvider.user == null) return;
     await _repository.deleteCategory(id);
     await fetchCategories();
