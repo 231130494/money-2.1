@@ -24,7 +24,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   late String _type;
   late DateTime _selectedDate;
   Category? _selectedCategory;
-  String? _initialCategoryId; // HARUS String?
+  String? _initialCategoryId;
   String? _currentUserId;
 
   @override
@@ -115,7 +115,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         description: _description,
         type: _type,
         date: _selectedDate,
-        categoryId: _selectedCategory!.id, // categoryId sekarang String
+        categoryId: _selectedCategory!.id, 
         category: _selectedCategory,
         userId: _currentUserId,
       );
@@ -305,7 +305,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   }
 }
 
-// Extension ini HARUS berada di luar kelas AddEditTransactionScreen atau _AddEditTransactionScreenState
 extension IterableExtension<T> on Iterable<T> {
   T? firstWhereOrNull(bool Function(T element) test) {
     for (final element in this) {
