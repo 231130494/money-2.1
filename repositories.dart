@@ -1,24 +1,11 @@
 // lib/model/repositories.dart
-// Jika Anda tidak menggunakan SQLite, Anda bisa menghapus baris-baris ini dan file database_helper.dart
-// import 'package:sqflite/sqflite.dart' as sql;
-// import 'package:money/model/database_helper.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore_db;
 import 'package:money/model/category.dart';
 import 'package:money/model/transaction.dart';
 
 class CategoryRepository {
-  // Jika tidak menggunakan SQLite, Anda bisa menghapus baris ini
-  // final DatabaseHelper _dbHelper = DatabaseHelper();
   final firestore_db.CollectionReference _categoriesCollection =
       firestore_db.FirebaseFirestore.instance.collection('categories');
-
-  // Hapus semua method *Local (SQLite) jika tidak digunakan. Contoh:
-  // Future<int> insertCategoryLocal(Category category) async { /* ... */ }
-  // Future<List<Category>> getCategoriesLocal({String? type}) async { /* ... */ }
-  // Future<int> updateCategoryLocal(Category category) async { /* ... */ }
-  // Future<int> deleteCategoryLocal(int id) async { /* ... */ }
-  // Future<Category?> getCategoryByIdLocal(int id) async { /* ... */ }
 
   Future<void> addCategory(Category category) async {
     if (category.id == null) {
@@ -28,17 +15,15 @@ class CategoryRepository {
         'color': category.color,
         'userId': category.userId,
       });
-      category.id = docRef.id; // Harus String
+      category.id = docRef.id;
     } else {
-      await _categoriesCollection.doc(category.id!).set({ // ID harus String
+      await _categoriesCollection.doc(category.id!).set({
         'name': category.name,
         'type': category.type,
         'color': category.color,
         'userId': category.userId,
       });
     }
-    // Hapus panggilan ke method Local jika tidak digunakan. Contoh:
-    // await updateCategoryLocal(category);
   }
 
   Future<List<Category>> getCategories({String? type, String? userId}) async {
@@ -52,7 +37,7 @@ class CategoryRepository {
     firestore_db.QuerySnapshot snapshot = await query.get();
     return snapshot.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>;
-      return Category.fromMap({...data, 'id': doc.id}); // Ambil ID dokumen langsung (String)
+      return Category.fromMap({...data, 'id': doc.id}); 
     }).toList();
   }
 
@@ -60,23 +45,19 @@ class CategoryRepository {
     if (category.id == null) {
       throw Exception("Category ID cannot be null for update operation.");
     }
-    await _categoriesCollection.doc(category.id!).update({ // ID harus String
+    await _categoriesCollection.doc(category.id!).update({
       'name': category.name,
       'type': category.type,
       'color': category.color,
       'userId': category.userId,
     });
-    // Hapus panggilan ke method Local jika tidak digunakan
-    // await updateCategoryLocal(category);
   }
 
-  Future<void> deleteCategory(String id) async { // Parameter harus String
+  Future<void> deleteCategory(String id) async {
     await _categoriesCollection.doc(id).delete();
-    // Hapus panggilan ke method Local jika tidak digunakan
-    // await deleteCategoryLocal(id);
   }
 
-  Future<Category?> getCategoryById(String id) async { // Parameter harus String
+  Future<Category?> getCategoryById(String id) async {
     firestore_db.DocumentSnapshot doc = await _categoriesCollection.doc(id).get();
     if (doc.exists) {
       final data = doc.data() as Map<String, dynamic>;
@@ -87,17 +68,9 @@ class CategoryRepository {
 }
 
 class TransactionRepository {
-  // Jika tidak menggunakan SQLite, Anda bisa menghapus baris ini
-  // final DatabaseHelper _dbHelper = DatabaseHelper();
   final firestore_db.CollectionReference _transactionsCollection =
       firestore_db.FirebaseFirestore.instance.collection('transactions');
   final CategoryRepository _categoryRepository = CategoryRepository();
-
-  // Hapus semua method *Local (SQLite) jika tidak digunakan. Contoh:
-  // Future<int> insertTransactionLocal(Transaction transaction) async { ... }
-  // Future<List<Transaction>> getTransactionsLocal() async { ... }
-  // Future<int> updateTransactionLocal(Transaction transaction) async { ... }
-  // Future<int> deleteTransactionLocal(int id) async { ... }
 
   Future<void> addTransaction(Transaction transaction) async {
     if (transaction.id == null) {
@@ -106,22 +79,20 @@ class TransactionRepository {
         'description': transaction.description,
         'type': transaction.type,
         'date': firestore_db.Timestamp.fromMicrosecondsSinceEpoch(transaction.date.microsecondsSinceEpoch),
-        'categoryId': transaction.categoryId, // categoryId juga String
+        'categoryId': transaction.categoryId, 
         'userId': transaction.userId,
       });
-      transaction.id = docRef.id; // Harus String
+      transaction.id = docRef.id; 
     } else {
-      await _transactionsCollection.doc(transaction.id!).set({ // ID harus String
+      await _transactionsCollection.doc(transaction.id!).set({ 
         'amount': transaction.amount,
         'description': transaction.description,
         'type': transaction.type,
         'date': firestore_db.Timestamp.fromMicrosecondsSinceEpoch(transaction.date.microsecondsSinceEpoch),
-        'categoryId': transaction.categoryId, // categoryId juga String
+        'categoryId': transaction.categoryId, 
         'userId': transaction.userId,
       });
     }
-    // Hapus panggilan ke method Local jika tidak digunakan
-    // await insertTransactionLocal(transaction);
   }
 
   Future<List<Transaction>> getTransactions(String userId) async {
@@ -134,12 +105,12 @@ class TransactionRepository {
     for (var doc in snapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
       final transaction = Transaction(
-        id: doc.id, // Ambil ID dokumen langsung (String)
+        id: doc.id, 
         amount: (data['amount'] as num).toDouble(),
         description: data['description'] as String?,
         type: data['type'] as String,
         date: (data['date'] as firestore_db.Timestamp).toDate(),
-        categoryId: data['categoryId'] as String?, // categoryId harus String
+        categoryId: data['categoryId'] as String?, 
         userId: data['userId'] as String?,
       );
 
@@ -155,21 +126,16 @@ class TransactionRepository {
     if (transaction.id == null) {
       throw Exception("Transaction ID cannot be null for update operation.");
     }
-    await _transactionsCollection.doc(transaction.id!).update({ // ID harus String
-      'amount': transaction.amount,
+    await _transactionsCollection.doc(transaction.id!).update({ 
       'description': transaction.description,
       'type': transaction.type,
       'date': firestore_db.Timestamp.fromMicrosecondsSinceEpoch(transaction.date.microsecondsSinceEpoch),
-      'categoryId': transaction.categoryId, // categoryId juga String
+      'categoryId': transaction.categoryId, 
       'userId': transaction.userId,
     });
-    // Hapus panggilan ke method Local jika tidak digunakan
-    // await updateTransactionLocal(transaction);
   }
 
-  Future<void> deleteTransaction(String id) async { // Parameter harus String
+  Future<void> deleteTransaction(String id) async {
     await firestore_db.FirebaseFirestore.instance.collection('transactions').doc(id).delete();
-    // Hapus panggilan ke method Local jika tidak digunakan
-    // await deleteTransactionLocal(id);
   }
 }
