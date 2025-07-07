@@ -1,12 +1,13 @@
+//lib/model/transaction.dart
 import 'package:money/model/category.dart';
 
 class Transaction {
-  String? id; // HARUS String?
+  String? id; 
   double amount;
   String? description;
   String type;
   DateTime date;
-  String? categoryId; // HARUS String?
+  String? categoryId; 
   Category? category;
   String? userId;
 
@@ -35,12 +36,12 @@ class Transaction {
 
   factory Transaction.fromMap(Map<String, dynamic> map) {
     return Transaction(
-      id: map['id'] as String?, // HARUS di-cast sebagai String?
+      id: map['id'] as String?,
       amount: (map['amount'] as num).toDouble(),
       description: map['description'] as String?,
       type: map['type'] as String,
       date: DateTime.fromMillisecondsSinceEpoch(map['date'] as int),
-      categoryId: map['categoryId'] as String?, // HARUS di-cast sebagai String?
+      categoryId: map['categoryId'] as String?,
       userId: map['userId'] as String?,
     );
   }
